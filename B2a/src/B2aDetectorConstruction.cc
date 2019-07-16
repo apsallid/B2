@@ -120,7 +120,7 @@ G4VPhysicalVolume* B2aDetectorConstruction::DefineVolumes()
 
   // Sizes of the principal geometrical components (solids)
   
-  G4double chamberToBeam = 12.0*cm; // from active volume to target
+  G4double chamberToBeam = 12.0*cm;//-25.0*cm; // from active volume to target
 
   G4double chamberWidth = 50.0*cm; // width of the chambers
   G4double targetLength =  1.0*cm; // full length of Target

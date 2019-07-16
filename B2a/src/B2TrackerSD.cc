@@ -28,6 +28,7 @@
 /// \brief Implementation of the B2TrackerSD class
 
 #include "B2TrackerSD.hh"
+#include "HistoManager.hh"
 #include "G4HCofThisEvent.hh"
 #include "G4Step.hh"
 #include "G4ThreeVector.hh"
@@ -77,15 +78,40 @@ G4bool B2TrackerSD::ProcessHits(G4Step* aStep,
 
   B2TrackerHit* newHit = new B2TrackerHit();
 
+  //energy spectrum of secondaries   
+  G4double energy = aStep->GetTrack()->GetKineticEnergy();   
+  G4bool  charged = (aStep->GetTrack()->GetDefinition()->GetPDGCharge() != 0.); 
+
   newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
   newHit->SetChamberNb(aStep->GetPreStepPoint()->GetTouchableHandle()
                                                ->GetCopyNumber());
   newHit->SetEdep(edep);
-  newHit->SetPos (aStep->GetPostStepPoint()->GetPosition());
+  G4ThreeVector pos = aStep->GetPostStepPoint()->GetPosition();
+  newHit->SetPos ( pos );
 
   fHitsCollection->insert( newHit );
 
-  //newHit->Print();
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();  
+  analysisManager->FillH1(1, edep);  
+  analysisManager->FillH1(2, pos.x() );  
+  analysisManager->FillH1(3, pos.y() );
+  analysisManager->FillH1(4, pos.z() );
+  
+  analysisManager->FillNtupleDColumn(1,0,edep);  
+  analysisManager->FillNtupleDColumn(1,1,pos.x() );  
+  analysisManager->FillNtupleDColumn(1,2,pos.y() );
+  analysisManager->FillNtupleDColumn(1,3,pos.z() );
+
+  if (charged) {
+    analysisManager->FillH1(5,energy);
+    analysisManager->FillNtupleDColumn(1,4,energy);
+  } else {
+    analysisManager->FillH1(6,energy);
+    analysisManager->FillNtupleDColumn(1,5,energy);
+  }
+  analysisManager->AddNtupleRow(1);
+
+  newHit->Print();
 
   return true;
 }

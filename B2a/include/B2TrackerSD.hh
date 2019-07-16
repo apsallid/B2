@@ -61,6 +61,7 @@ class B2TrackerSD : public G4VSensitiveDetector
 
   private:
     B2TrackerHitsCollection* fHitsCollection;
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

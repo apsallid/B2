@@ -28,35 +28,55 @@
 /// \brief Implementation of the B2RunAction class
 
 #include "B2RunAction.hh"
+#include "HistoManager.hh"
 
+#include "G4RunManager.hh"
 #include "G4Run.hh"
 #include "G4RunManager.hh"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B2RunAction::B2RunAction()
- : G4UserRunAction()
+  : G4UserRunAction(),fHistoManager(0)
 { 
   // set printing event number per each 100 events
-  G4RunManager::GetRunManager()->SetPrintProgress(1000);     
+  G4RunManager::GetRunManager()->SetPrintProgress(1000);    
+  fHistoManager = new HistoManager(); 
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 B2RunAction::~B2RunAction()
-{}
+{
+  delete fHistoManager; 
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B2RunAction::BeginOfRunAction(const G4Run*)
 { 
+  //histograms   //   
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();   
+  if ( analysisManager->IsActive() ) {     
+    analysisManager->OpenFile();  
+  }       
+  
   //inform the runManager to save random number seed
   G4RunManager::GetRunManager()->SetRandomNumberStore(false);
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void B2RunAction::EndOfRunAction(const G4Run* )
-{}
+{
+  //save histograms        
+  G4AnalysisManager* analysisManager = G4AnalysisManager::Instance();    
+  if ( analysisManager->IsActive() ) {  
+    analysisManager->Write();     
+    analysisManager->CloseFile();  
+  }      
+
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
